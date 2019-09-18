@@ -1,0 +1,37 @@
+HostKey /etc/ssh/ssh_host_rsa_key
+HostKey /etc/ssh/ssh_host_ecdsa_key
+HostKey /etc/ssh/ssh_host_ed25519_key
+AcceptEnv LANG LC_CTYPE LC_NUMERIC LC_TIME LC_COLLATE LC_MONETARY LC_MESSAGES
+AcceptEnv LC_PAPER LC_NAME LC_ADDRESS LC_TELEPHONE LC_MEASUREMENT
+AcceptEnv LC_IDENTIFICATION LC_ALL LANGUAGE
+AcceptEnv XMODIFIERS
+Protocol 2
+SyslogFacility AUTHPRIV
+GSSAPIAuthentication yes
+GSSAPICleanupCredentials no
+PasswordAuthentication yes
+ChallengeResponseAuthentication no
+PrintMotd no
+UsePAM yes
+{% if lax_ssh is undefined %}
+PermitRootLogin no
+{% endif %}
+X11Forwarding yes
+UsePrivilegeSeparation sandbox
+Subsystem sftp {{openssh_sftp_subsystem_location}}
+AuthorizedKeysFile .ssh/authorized_keys
+AuthorizedKeysCommand /usr/bin/sss_ssh_authorizedkeys
+AuthorizedKeysCommandUser nobody
+{% if lax_ssh is defined %}
+AuthenticationMethods publickey password gssapi-with-mic
+{% else %}
+AuthenticationMethods publickey gssapi-with-mic
+{% endif %}
+{% if no_host_key_algo is undefined or no_host_key_algo != True %}
+HostKeyAlgorithms=ssh-ed25519,ssh-ed25519-cert-v01@openssh.com,ssh-rsa,ssh-dss,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,ssh-rsa-cert-v01@openssh.com,ssh-dss-cert-v01@openssh.com,ecdsa-sha2-nistp256-cert-v01@openssh.com,ecdsa-sha2-nistp384-cert-v01@openssh.com,ecdsa-sha2-nistp521-cert-v01@openssh.com
+{% endif %}
+KexAlgorithms=curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256,ecdh-sha2-nistp384
+MACs=umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,hmac-sha2-256
+#TODO: Jsch needs hmac-sha2-256 :/
+Ciphers=chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr
+UseDNS no
