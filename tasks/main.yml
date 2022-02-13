@@ -2,9 +2,6 @@
 - name: Ensure ssh is installed
   package:
     name: openssh
-- name: Install screen
-  package:
-    name: screen
 - name: Copy sshd_config into place
   template:
     src: sshd_config.j2
